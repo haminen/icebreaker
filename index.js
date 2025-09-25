@@ -8,7 +8,7 @@ import axios from "axios";
 
 //muodostetaan serveri-oli ja määritellään portti missä servu käynnistellään kun käynnistellään
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // 3. Use the public folder for static files. kuten kuvat ja tyylitiedostot
 app.use(express.static("public"));
