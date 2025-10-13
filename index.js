@@ -92,7 +92,7 @@ app.get("/", async (req, res) => {
     }
     activity.ip = cleanIp;
   } catch (err2){
-    activity.ip = "Computer says no."
+    activity.ip = err2.message;
   }
   res.render("index.ejs", { content: activity });
 
