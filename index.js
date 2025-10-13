@@ -90,6 +90,8 @@ app.get("/", async (req, res) => {
       const ipdata = await ipresp.json();
       activity.city = ipdata.city;
       activity.country = ipdata.country;
+      activity.lat = ipdata.latitude;
+      activity.lon = ipdata.longitude;
     }
     activity.ip = cleanIp;
   } catch (err2){
