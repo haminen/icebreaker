@@ -84,11 +84,12 @@ app.get("/", async (req, res) => {
     ) {
       activity.city = "Unknown";
       activity.country = "Localhost";
-    } else {
-      const ipresp = await fetch(`https://ipapi.co/${cleanIp}/json/`);
+    } else { //https://ipwho.is/194.86.38.39 -tsekkaa!
+      //const ipresp = await fetch(`https://ipapi.co/${cleanIp}/json/`);
+      const ipresp = await fetch(`https://ipwho.is/${cleanIp}`);
       const ipdata = await ipresp.json();
       activity.city = ipdata.city;
-      activity.country = ipdata.country_name;
+      activity.country = ipdata.country;
     }
     activity.ip = cleanIp;
   } catch (err2){
