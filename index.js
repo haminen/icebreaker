@@ -23,11 +23,18 @@ app.set("views", "./views"); // oletuskansio templaateille
 // 3. Use the public folder for static files. kuten kuvat ja tyylitiedostot
 app.use(express.static("public"));
 
+
+const nowInFinland = new Date().toLocaleString("fi-FI", {
+  timeZone: "Europe/Helsinki"
+});
+
+console.log(nowInFinland);
 // Yksinkertainen reitti
 //app.get("/", (req, res) => {
 //  res.send("Hello, Express!");
 //});
 
+/*
 app.get("/", async (req, res) => {
   try {
     //vitsien haku
@@ -51,6 +58,44 @@ app.get("/", async (req, res) => {
   } catch (err) {
     res.render("index.ejs", { content: "Error: " + err.message });
   }
+});
+*/
+app.get("/", async (req, res) => {
+  try {
+    //vitsien haku
+    const response = await axios.get("https://v2.jokeapi.dev/joke/Programming,Dark,Pun,Spooky?blacklistFlags=racist&format=txt");
+    //console.log(response.data);
+    activity.joke = response.data;
+    } catch (err) {
+      activity.joke =  "Error: " + err.message;
+    }
+
+  try {
+    //ip-tiedot
+    const forwarded = req.headers["x-forwarded-for"];
+    const ip = forwarded ? forwarded.split(",")[0].trim() : req.connection.remoteAddress;
+    const cleanIp = ip.replace("::ffff:", "");
+
+    if (
+      cleanIp.startsWith("127.") ||
+      cleanIp.startsWith("10.") ||
+      cleanIp.startsWith("192.168") ||
+      cleanIp === "::1"
+    ) {
+      activity.city = "Unknown";
+      activity.country = "Localhost";
+    } else {
+      const ipresp = await fetch(`https://ipapi.co/${cleanIp}/json/`);
+      const ipdata = await ipresp.json();
+      activity.city = ipdata.city;
+      activity.country = ipdata.country_name;
+    }
+    activity.ip = cleanIp;
+  } catch (err2){
+    activity.ip = "Computer says no."
+  }
+  res.render("index.ejs", { content: activity });
+
 });
 
 // Käynnistä serveri
