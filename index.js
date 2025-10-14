@@ -55,10 +55,10 @@ app.get("/", async (req, res) => {
       ip: req.ip,
       body: req.body
     };
-    activity.requestdata = JSON.stringify(reqdata, null, 2);
+    activity.requestdataString = JSON.stringify(reqdata, null, 2);
     //console.log(activity.requestdata);
   } catch (err) {
-    activity.requestdata = `Error serializing req: ${err.message}`;
+    activity.requestdataString = `Error serializing req: ${err.message}`;
   }
 
   try {
