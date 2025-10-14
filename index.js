@@ -88,6 +88,7 @@ app.get("/", async (req, res) => {
       //const ipresp = await fetch(`https://ipapi.co/${cleanIp}/json/`);
       const ipresp = await fetch(`https://ipwho.is/${cleanIp}`);
       const ipdata = await ipresp.json();
+      activity.ipdataString = JSON.stringify(ipdata, null, 2); // <-- kaunis sisennys
       activity.city = ipdata.city;
       activity.country = ipdata.country;
       activity.lat = ipdata.latitude;
