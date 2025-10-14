@@ -110,21 +110,32 @@
       <% } %>
     </div>
   </div>
+</div>
 
-  <!-- Tämä uusi rivi näyttää WHO.IS JSON -datan luettavassa muodossa -->
-  <div class="w3-row-padding" style="margin-top:64px">
-    <div class="w3-col m12">
-      <h4>Full WHO.IS / IPWHO.IS data</h4>
-      <p>All raw IP data returned from the API:</p>
+<!-- uusi setti-->
+<div class="w3-container" id="you" style="padding:128px 16px">
+  <div class="w3-row-padding w3-center">
 
-      <!-- Pre-muotoiltu JSON-teksti (vihreä teksti mustalla pohjalla) -->
+    <!-- Vasemman puolen sarake: Request data -->
+    <div class="w3-col m6 w3-padding-large">
+      <h3>Request data</h3>
+      <p>Request data sent by browser:</p>
       <pre style="background:#111; color:#0f0; padding:16px; border-radius:8px; overflow:auto; text-align:left; font-size:14px;">
-        <%= content.ipdataString %>
+<%= content.requestdataString %>
       </pre>
+      <button class="w3-button w3-black w3-small" onclick="copyRequestData()">Copy request data</button>
+    </div>
 
-      <!-- Lisätään pieni Copy-nappi, jos haluat kopioida JSON:in -->
+    <!-- Oikean puolen sarake: WHO.IS / IPWHO.IS -->
+    <div class="w3-col m6 w3-padding-large">
+      <h3>WHO.IS / IPWHO.IS data</h3>
+      <p>All raw IP data returned from the API:</p>
+      <pre style="background:#111; color:#0f0; padding:16px; border-radius:8px; overflow:auto; text-align:left; font-size:14px;">
+<%= content.ipdataString %>
+      </pre>
       <button class="w3-button w3-black w3-small" onclick="copyJSON()">Copy JSON</button>
     </div>
+
   </div>
 </div>
 
@@ -152,12 +163,16 @@
     mySidebar.style.display = "none";
   }
 
-  //Copy JSON -napin toiminnallisuus
-  function copyJSON() {
-  const jsonText = <%- JSON.stringify(content.ipdataString) %>;
-  navigator.clipboard.writeText(jsonText);
-  alert("JSON copied to clipboard!");
-  }
+
+function copyRequestData() {
+  navigator.clipboard.writeText(<%- content.requestdataString %>);
+  alert("Request data copied to clipboard!");
+}
+
+function copyJSON() {
+  navigator.clipboard.writeText(<%- content.ipdataString %>);
+  alert("WHO.IS data copied to clipboard!");
+}
 
 </script>
 

@@ -9,6 +9,9 @@ import axios from "axios";
 //mahdollistaa ip-tietojen näyttämisen ja tuomisen
 import fetch from "node-fetch";
 
+// tuodaan cookie-tietoja
+import cookieParser from "cookie-parser";
+
 //muodostetaan serveri-oli ja määritellään portti missä servu käynnistellään kun käynnistellään
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -16,12 +19,17 @@ const PORT = process.env.PORT || 3000;
 let activity = {};
 
 //määrityksiä joita tarvitaan toimimiseen proxy-homma oli ipn näyttämiseen ja engine oli uuteen nodeversioon tms
-app.set("trust proxy", true);
+app.set("trust proxy", true); //tunnistetaan käyttäjä oikean proxzytn takaa
 app.set("view engine", "ejs");
 app.set("views", "./views"); // oletuskansio templaateille
 
 // 3. Use the public folder for static files. kuten kuvat ja tyylitiedostot
 app.use(express.static("public"));
+
+//uusi osio liittyen cookie dataan
+app.use(cookieParser());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 
 const nowInFinland = new Date().toLocaleString("fi-FI", {
@@ -29,38 +37,30 @@ const nowInFinland = new Date().toLocaleString("fi-FI", {
 });
 
 console.log(nowInFinland);
+
 // Yksinkertainen reitti
 //app.get("/", (req, res) => {
 //  res.send("Hello, Express!");
 //});
 
-/*
 app.get("/", async (req, res) => {
-  try {
-    //vitsien haku
-    const response = await axios.get("https://v2.jokeapi.dev/joke/Programming,Dark,Pun,Spooky?blacklistFlags=racist&format=txt");
-    //console.log(response.data);
-    activity.joke = response.data;
 
-    //ip-tiedot
-    const ip = req.ip || req.headers["x-forwarded-for"]?.split(",")[0];
-    const cleanIp = ip.replace("::ffff:", "");
-    const ipresp = await fetch(`https://ipapi.co/${cleanIp}/json/`);
-    const ipdata = await ipresp.json();
-    //console.log("Vierailijan sijainti:", ipdata);
-    activity.city = ipdata.city;
-    activity.country = ipdata.country_name;
-    activity.ip = cleanIp;
-
-    // lähetetään data index.ejs:ään
-    //console.log(activity);
-    res.render("index.ejs", { content: activity });
+  try { //request-tiedot
+    const reqdata = {
+      method: req.method,
+      url: req.originalUrl,
+      headers: req.headers,
+      cookies: req.cookies,
+      query: req.query,
+      ip: req.ip,
+      body: req.body
+    };
+    activity.requestdata = JSON.stringify(reqdata, null, 2);
+    //console.log(activity.requestdata);
   } catch (err) {
-    res.render("index.ejs", { content: "Error: " + err.message });
+    activity.requestdata = `Error serializing req: ${err.message}`;
   }
-});
-*/
-app.get("/", async (req, res) => {
+
   try {
     //vitsien haku
     const response = await axios.get("https://v2.jokeapi.dev/joke/Programming,Dark,Pun,Spooky?blacklistFlags=racist&format=txt");
