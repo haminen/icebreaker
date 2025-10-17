@@ -17,6 +17,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 let activity = {};
+let reqdata;
+let ipdata;
 
 //määrityksiä joita tarvitaan toimimiseen proxy-homma oli ipn näyttämiseen ja engine oli uuteen nodeversioon tms
 app.set("trust proxy", true); //tunnistetaan käyttäjä oikean proxzytn takaa
@@ -43,10 +45,59 @@ console.log(nowInFinland);
 //  res.send("Hello, Express!");
 //});
 
+import sqlite3 from 'sqlite3';
+import { open } from 'sqlite';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const dbPath = path.join(__dirname, 'db', 'data.sqlite');
+
+const db = await open({
+  filename: dbPath,
+  driver: sqlite3.Database
+});
+
+/*
+console.log('Käytettävä tietokanta:', dbPath);
+const rows = await db.all(`
+  SELECT
+  *
+  FROM visit
+`);
+
+console.log(rows);*/
+
 app.get("/", async (req, res) => {
 
+  try {
+    // 1️⃣ Uniikit city+country -kombot
+    const cityRows = await db.all(`
+      SELECT DISTINCT
+        json_extract(whois,'$.city') || ', ' || json_extract(whois,'$.country') AS citycountry
+      FROM visit
+      WHERE json_extract(whois,'$.city') IS NOT NULL
+        AND json_extract(whois,'$.country') IS NOT NULL
+    `);
+
+    // Muutetaan pelkiksi arvoiksi arrayksi
+    const ulocations = cityRows.map(r => r.citycountry.trim());
+    // 2️⃣ Sivulataukset
+    const { loads } = await db.get(`SELECT COUNT(*) AS loads FROM visit`);
+    // 3️⃣ Uniikit kävijät (IP)
+    const { uvisitors } = await db.get(`SELECT COUNT(DISTINCT ip) AS uvisitors FROM visit`);
+
+    activity.loads = loads;
+    activity.uvisitors = uvisitors;
+    activity.ulocations = ulocations;
+    //console.log ("loads: "+activity.loads+", uniqvisitors: "+activity.uvisitors+", uniqlocations: "+activity.ulocations);
+    } catch (err){
+      console.log(err.message);
+    }
+
   try { //request-tiedot
-    const reqdata = {
+      reqdata = {
       method: req.method,
       url: req.originalUrl,
       headers: req.headers,
@@ -55,12 +106,11 @@ app.get("/", async (req, res) => {
       ip: req.ip,
       body: req.body
     };
-    activity.requestdataString = JSON.stringify(reqdata, null, 2);
-    //console.log(activity.requestdata);
-  } catch (err) {
-    activity.requestdataString = `Error serializing req: ${err.message}`;
-  }
-
+    } catch (err) {
+      activity.requestdataString = `Error serializing req: ${err.message}`;
+    }
+    activity.requestdata = reqdata;
+    activity.requestdataString = JSON.stringify(reqdata, null, 2); // <-- kaunis sisennys
   try {
     //vitsien haku
     const response = await axios.get("https://v2.jokeapi.dev/joke/Programming,Dark,Pun,Spooky?blacklistFlags=racist&format=txt");
@@ -85,9 +135,9 @@ app.get("/", async (req, res) => {
       activity.city = "Unknown";
       activity.country = "Localhost";
     } else { //https://ipwho.is/194.86.38.39 -tsekkaa!
-      //const ipresp = await fetch(`https://ipapi.co/${cleanIp}/json/`);
       const ipresp = await fetch(`https://ipwho.is/${cleanIp}`);
-      const ipdata = await ipresp.json();
+      ipdata = await ipresp.json();
+      console.log(ipdata.type);
       activity.ipdataString = JSON.stringify(ipdata, null, 2); // <-- kaunis sisennys
       activity.city = ipdata.city;
       activity.country = ipdata.country;
@@ -95,9 +145,15 @@ app.get("/", async (req, res) => {
       activity.lon = ipdata.longitude;
     }
     activity.ip = cleanIp;
-  } catch (err2){
-    activity.ip = err2.message;
-  }
+    } catch (err2){
+      activity.ip = err2.message;
+    }
+
+  await db.run(
+    `INSERT INTO visit (ip, request, whois) VALUES (?, ?, ?)`,
+    [reqdata.ip, JSON.stringify(reqdata), JSON.stringify(ipdata)]
+  );
+  //console.log(activity);
   res.render("index.ejs", { content: activity });
 
 });

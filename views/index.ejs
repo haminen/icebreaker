@@ -139,6 +139,35 @@
   </div>
 </div>
 
+<!-- Statistics Section -->
+<div class="w3-container w3-dark-grey w3-padding-64 w3-center">
+  <div class="w3-row-padding">
+
+    <!-- 1️⃣ Sivulataukset -->
+    <div class="w3-third">
+      <span class="w3-xxlarge"><%= content.loads %></span>
+      <br>Pageloads
+    </div>
+
+    <!-- 2️⃣ Uniikit kävijät -->
+    <div class="w3-third">
+      <span class="w3-xxlarge"><%= content.uvisitors %></span>
+      <br>Unique visitors
+    </div>
+
+    <!-- 3️⃣ Uniikit kaupungit + maat -->
+    <div class="w3-third" style="text-align: left; max-height: 200px; overflow-y: auto;">
+      <h4>Uniq city+country -combinations</h4>
+      <ul style="margin:0; padding-left: 20px;">
+        <% content.ulocations.forEach(loc => { %>
+          <li><%= loc %></li>
+        <% }); %>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
 <!-- Footer -->
 <footer class="w3-center w3-black w3-padding-32">
   <p>© Häminen Productions</p>
