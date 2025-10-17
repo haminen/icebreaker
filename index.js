@@ -12,6 +12,20 @@ import fetch from "node-fetch";
 // tuodaan cookie-tietoja
 import cookieParser from "cookie-parser";
 
+import sqlite3 from 'sqlite3';
+import { open } from 'sqlite';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const dbPath = path.join(__dirname, 'db', 'data.sqlite');
+
+const db = await open({
+  filename: dbPath,
+  driver: sqlite3.Database
+});
+
 //muodostetaan serveri-oli ja määritellään portti missä servu käynnistellään kun käynnistellään
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -45,19 +59,7 @@ console.log(nowInFinland);
 //  res.send("Hello, Express!");
 //});
 
-import sqlite3 from 'sqlite3';
-import { open } from 'sqlite';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const dbPath = path.join(__dirname, 'db', 'data.sqlite');
-
-const db = await open({
-  filename: dbPath,
-  driver: sqlite3.Database
-});
 
 /*
 console.log('Käytettävä tietokanta:', dbPath);
