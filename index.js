@@ -17,6 +17,9 @@ import { open } from 'sqlite';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+// Kun palvelin käynnistyy:
+const startTime = new Date();
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const dbPath = path.join(__dirname, 'db', 'data.sqlite');
@@ -72,6 +75,24 @@ const rows = await db.all(`
 console.log(rows);*/
 
 app.get("/", async (req, res) => {
+
+  const uptimeMs = new Date() - startTime;
+
+  //sekunnit
+  const uptimeSec = Math.floor(process.uptime());
+
+  // kokonaiset päivät
+  const days = Math.floor(uptimeMs / (1000 * 60 * 60 * 24));
+
+  // jäljelle jääneet tunnit (ei kokonaismäärä)
+  const hours = Math.floor((uptimeMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+  //minat
+  const mins = Math.floor((uptimeSec % 3600) / 60);
+
+  activity.uptimedays = days;
+  activity.uptimehours = hours;
+  activity.uptimemins = mins;
 
   try {
     // 1️⃣ Uniikit city+country -kombot

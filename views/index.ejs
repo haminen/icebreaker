@@ -34,6 +34,7 @@
     <div class="w3-right w3-hide-small">
       <a href="#icebreaker" class="w3-bar-item w3-button">Icebreaker</a>
       <a href="#you" class="w3-bar-item w3-button">You</a>
+      <a href="#stats" class="w3-bar-item w3-button">Stats</a>
     </div>
 
     <a href="javascript:void(0)" class="w3-bar-item w3-button w3-right w3-hide-large w3-hide-medium" onclick="w3_open()">
@@ -47,6 +48,7 @@
   <a href="javascript:void(0)" onclick="w3_close()" class="w3-bar-item w3-button w3-large w3-padding-16">Close ×</a>
   <a href="#icebreaker" onclick="w3_close()" class="w3-bar-item w3-button">Icebreaker</a>
   <a href="#you" onclick="w3_close()" class="w3-bar-item w3-button">You</a>
+  <a href="#stats" onclick="w3_close()" class="w3-bar-item w3-button">Stats</a>
 </nav>
 
 <!-- Header -->
@@ -112,7 +114,7 @@
   </div>
 </div>
 
-<!-- uusi setti-->
+<!-- Request-tiedot-->
 <div class="w3-container" id="you" style="padding:128px 16px">
   <div class="w3-row-padding w3-center">
 
@@ -140,32 +142,50 @@
 </div>
 
 <!-- Statistics Section -->
-<div class="w3-container w3-dark-grey w3-padding-64 w3-center">
+<div class="w3-container w3-dark-grey w3-padding-64 w3-center" id="stats">
   <div class="w3-row-padding">
 
     <!-- 1️⃣ Sivulataukset -->
-    <div class="w3-third">
+    <div class="w3-third w3-section">
       <span class="w3-xxlarge"><%= content.loads %></span>
       <br>Pageloads
     </div>
 
     <!-- 2️⃣ Uniikit kävijät -->
-    <div class="w3-third">
+    <div class="w3-third w3-section">
       <span class="w3-xxlarge"><%= content.uvisitors %></span>
       <br>Unique visitors
     </div>
 
-    <!-- 3️⃣ Uniikit kaupungit + maat -->
-    <div class="w3-third" style="text-align: left; max-height: 200px; overflow-y: auto;">
-      <h4>Uniq city+country -combinations</h4>
-      <ul style="margin:0; padding-left: 20px;">
-        <% content.ulocations.forEach(loc => { %>
-          <li><%= loc %></li>
-        <% }); %>
-      </ul>
+    <!-- 3️⃣ Uptime -->
+    <div class="w3-third w3-section">
+      <span class="w3-xxlarge">
+        <%= content.uptimedays %>d <%= content.uptimehours %>h <%= content.uptimemins %>m
+      </span>
+      <br>Uptime
     </div>
 
   </div>
+
+  <!-- Alempi rivi: Uniq city+country list -->
+  <div class="w3-row w3-margin-top w3-center">
+    <div class="w3-container" style="display: flex; justify-content: center;">
+      <div style="
+        text-align: left;
+        max-height: 220px;
+        overflow-y: auto;
+        display: inline-block;
+      ">
+        <h4 class="w3-center">Unique city+country combinations</h4>
+        <ul style="margin: 0; padding-left: 0; list-style: none;">
+          <% content.ulocations.forEach(loc => { %>
+            <li>• <%= loc %></li>
+          <% }); %>
+        </ul>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- Footer -->
